@@ -1,6 +1,8 @@
 ﻿using Domain.Interfaces;
 using Domain.Entities;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Application.Interface;
 
 namespace Application.Services
@@ -16,33 +18,96 @@ namespace Application.Services
 
         public async Task<Tarefa> GetTarefaByIdAsync(int id)
         {
-            return await _tarefaRepository.GetTarefaByIdAsync(id);
+            try
+            {
+                return await _tarefaRepository.GetTarefaByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Tarefa>> GetTarefasByUserIdAsync(int userId)
         {
-            return await _tarefaRepository.GetTarefasByUserIdAsync(userId);
+            try
+            {
+                return await _tarefaRepository.GetTarefasByUserIdAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Tarefa>> GetAllTarefasAsync()
         {
-            return await _tarefaRepository.GetAllTarefasAsync();
+            try
+            {
+                return await _tarefaRepository.GetAllTarefasAsync();
+            }
+            catch (Exception ex)
+            {
+                throw; 
+            }
         }
 
         public async Task AddTarefaAsync(Tarefa tarefa)
         {
-            await _tarefaRepository.AddTarefaAsync(tarefa);
+            try
+            {
+                if (tarefa == null)
+                {
+                    throw new ArgumentNullException(nameof(tarefa));
+                }
+
+                await _tarefaRepository.AddTarefaAsync(tarefa);
+            }
+            catch (Exception ex)
+            {
+                throw; 
+            }
         }
 
         public async Task UpdateTarefaAsync(Tarefa tarefa)
         {
-            await _tarefaRepository.UpdateTarefaAsync(tarefa);
+            try
+            {
+                if (tarefa == null)
+                {
+                    throw new ArgumentNullException(nameof(tarefa));
+                }
+
+                var existingTarefa = await _tarefaRepository.GetTarefaByIdAsync(tarefa.Id);
+                if (existingTarefa == null)
+                {
+                    throw new InvalidOperationException("Tarefa not found");
+                }
+
+                await _tarefaRepository.UpdateTarefaAsync(tarefa);
+            }
+            catch (Exception ex)
+            {
+                throw; 
+            }
         }
 
         public async Task DeleteTarefaAsync(int id)
         {
-            await _tarefaRepository.DeleteTarefaAsync(id);
+            try
+            {
+                var existingTarefa = await _tarefaRepository.GetTarefaByIdAsync(id);
+                if (existingTarefa == null)
+                {
+                    throw new InvalidOperationException("Tarefa not found");
+                }
+
+                await _tarefaRepository.DeleteTarefaAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw; 
+            }
         }
     }
 }
-

@@ -2,6 +2,10 @@
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -16,12 +20,16 @@ namespace Infrastructure.Repositories
 
         public async Task<Tarefa> GetTarefaByIdAsync(int id)
         {
-            return await _context.Tarefas.FindAsync(id);
+            return await _context.Tarefas
+                                 .Include(t => t.User) // Adiciona o carregamento ansioso para User
+                                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<IEnumerable<Tarefa>> GetTarefasByUserIdAsync(int userId)
         {
-            return await _context.Tarefas.Where(t => t.UserId == userId).ToListAsync();
+            return await _context.Tarefas
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Tarefa>> GetAllTarefasAsync()
@@ -31,23 +39,58 @@ namespace Infrastructure.Repositories
 
         public async Task AddTarefaAsync(Tarefa tarefa)
         {
-            await _context.Tarefas.AddAsync(tarefa);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Tarefas.AddAsync(tarefa);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task UpdateTarefaAsync(Tarefa tarefa)
         {
-            _context.Tarefas.Update(tarefa);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var existingTarefa = await _context.Tarefas.FindAsync(tarefa.Id);
+                if (existingTarefa == null)
+                {
+                    // Optionally handle the case where the entity is not found
+                    throw new InvalidOperationException("Tarefa not found");
+                }
+
+                _context.Entry(existingTarefa).CurrentValues.SetValues(tarefa);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task DeleteTarefaAsync(int id)
         {
-            var tarefa = await _context.Tarefas.FindAsync(id);
-            if (tarefa != null)
+            try
             {
-                _context.Tarefas.Remove(tarefa);
-                await _context.SaveChangesAsync();
+                var tarefa = await _context.Tarefas.FindAsync(id);
+                if (tarefa != null)
+                {
+                    _context.Tarefas.Remove(tarefa);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    // Optionally handle the case where the entity is not found
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
             }
         }
     }

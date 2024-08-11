@@ -1,13 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
-using System;
-
 
 namespace Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
         public DbSet<Tarefa> Tarefas { get; set; }
@@ -27,7 +25,7 @@ namespace Infrastructure.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Titulo).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.Descricao).HasMaxLength(int.MaxValue);
+                entity.Property(e => e.Descricao).HasMaxLength(1000); // Ajuste o tamanho conforme necessário
                 entity.Property(e => e.Data).IsRequired();
                 entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
                 entity.HasOne(d => d.User)

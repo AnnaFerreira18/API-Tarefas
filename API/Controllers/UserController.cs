@@ -1,6 +1,8 @@
 ﻿using Application.Interface;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -18,45 +20,90 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
+            try
+            {
+                var users = await _userService.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                return Ok(user);
             }
-            return Ok(user);
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user, [FromQuery] string password)
+        public async Task<ActionResult<User>> PostUser([FromBody] User user, [FromQuery] string password)
         {
-            await _userService.RegisterUserAsync(user, password);
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+            if (user == null)
+            {
+                return BadRequest("User is null");
+            }
+
+            try
+            {
+                if (string.IsNullOrEmpty(password))
+                {
+                    return BadRequest("Password is required");
+                }
+
+                await _userService.RegisterUserAsync(user, password);
+                return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, [FromBody] User user)
         {
-            if (id != user.Id)
+            if (user == null || id != user.Id)
             {
-                return BadRequest();
+                return BadRequest("User is null or ID mismatch");
             }
 
-            await _userService.UpdateUserAsync(user);
-            return NoContent();
+            try
+            {
+                await _userService.UpdateUserAsync(user);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            await _userService.DeleteUserAsync(id);
-            return NoContent();
+            try
+            {
+                await _userService.DeleteUserAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }

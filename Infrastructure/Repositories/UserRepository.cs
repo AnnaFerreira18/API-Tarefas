@@ -1,8 +1,11 @@
-﻿
-using Domain.Interfaces;
+﻿using Domain.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -17,40 +20,98 @@ namespace Infrastructure.Repositories
 
         public async Task<User> GetUserByIdAsync(int id)
         {
-            return await _context.Users.FindAsync(id);
+            try
+            {
+                return await _context.Users.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task<User> GetUserByUsernameAsync(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            try
+            {
+                return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return await _context.Users.ToListAsync();
+            try
+            {
+                return await _context.Users.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task AddUserAsync(User user)
         {
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task UpdateUserAsync(User user)
         {
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var existingUser = await _context.Users.FindAsync(user.Id);
+                if (existingUser == null)
+                {
+                    // Optionally handle the case where the entity is not found
+                    throw new InvalidOperationException("User not found");
+                }
+
+                _context.Entry(existingUser).CurrentValues.SetValues(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task DeleteUserAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
+            try
             {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
+                var user = await _context.Users.FindAsync(id);
+                if (user != null)
+                {
+                    _context.Users.Remove(user);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    // Optionally handle the case where the entity is not found
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
             }
         }
     }
 }
-

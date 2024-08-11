@@ -1,8 +1,11 @@
 ﻿using Application.Interface;
 using Domain.Entities;
 using Domain.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -17,42 +20,98 @@ namespace Application.Services
 
         public async Task<User> GetUserByIdAsync(int id)
         {
-            return await _userRepository.GetUserByIdAsync(id);
+            try
+            {
+                return await _userRepository.GetUserByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task<User> GetUserByUsernameAsync(string username)
         {
-            return await _userRepository.GetUserByUsernameAsync(username);
+            try
+            {
+                return await _userRepository.GetUserByUsernameAsync(username);
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            return await _userRepository.GetAllUsersAsync();
+            try
+            {
+                return await _userRepository.GetAllUsersAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task RegisterUserAsync(User user, string password)
         {
-            // Lógica para criptografar a senha
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (string.IsNullOrEmpty(password)) throw new ArgumentException("Password cannot be null or empty", nameof(password));
+
             user.Senha = HashPassword(password); // Criptografar a senha antes de salvar
-            await _userRepository.AddUserAsync(user);
+            try
+            {
+                await _userRepository.AddUserAsync(user);
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task UpdateUserAsync(User user)
         {
-            await _userRepository.UpdateUserAsync(user);
+            if (user == null) throw new ArgumentNullException(nameof(user));
+
+            try
+            {
+                await _userRepository.UpdateUserAsync(user);
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         public async Task DeleteUserAsync(int id)
         {
-            await _userRepository.DeleteUserAsync(id);
+            try
+            {
+                await _userRepository.DeleteUserAsync(id);
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                throw; // Re-throw or handle as needed
+            }
         }
 
         private string HashPassword(string password)
         {
-            using (var sha256 = SHA256.Create())
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, 16, 10000, HashAlgorithmName.SHA256))
             {
-                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(bytes);
+                var hash = pbkdf2.GetBytes(20);
+                var salt = pbkdf2.Salt;
+                var hashBytes = new byte[36];
+                Array.Copy(salt, 0, hashBytes, 0, 16);
+                Array.Copy(hash, 0, hashBytes, 16, 20);
+                return Convert.ToBase64String(hashBytes);
             }
         }
     }

@@ -1,6 +1,8 @@
 ﻿using Application.Interface;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -18,52 +20,99 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tarefa>>> GetTarefas()
         {
-            var tarefas = await _tarefaService.GetAllTarefasAsync();
-            return Ok(tarefas);
+            try
+            {
+                var tarefas = await _tarefaService.GetAllTarefasAsync();
+                return Ok(tarefas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Tarefa>> GetTarefa(int id)
         {
-            var tarefa = await _tarefaService.GetTarefaByIdAsync(id);
-            if (tarefa == null)
+            try
             {
-                return NotFound();
+                var tarefa = await _tarefaService.GetTarefaByIdAsync(id);
+                if (tarefa == null)
+                {
+                    return NotFound();
+                }
+                return Ok(tarefa);
             }
-            return Ok(tarefa);
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<IEnumerable<Tarefa>>> GetTarefasByUserId(int userId)
         {
-            var tarefas = await _tarefaService.GetTarefasByUserIdAsync(userId);
-            return Ok(tarefas);
+            try
+            {
+                var tarefas = await _tarefaService.GetTarefasByUserIdAsync(userId);
+                return Ok(tarefas);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Tarefa>> PostTarefa(Tarefa tarefa)
+        public async Task<ActionResult<Tarefa>> PostTarefa([FromBody] Tarefa tarefa)
         {
-            await _tarefaService.AddTarefaAsync(tarefa);
-            return CreatedAtAction(nameof(GetTarefa), new { id = tarefa.Id }, tarefa);
+            if (tarefa == null)
+            {
+                return BadRequest("Tarefa is null");
+            }
+
+            try
+            {
+                await _tarefaService.AddTarefaAsync(tarefa);
+                return CreatedAtAction(nameof(GetTarefa), new { id = tarefa.Id }, tarefa);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTarefa(int id, Tarefa tarefa)
+        public async Task<IActionResult> PutTarefa(int id, [FromBody] Tarefa tarefa)
         {
-            if (id != tarefa.Id)
+            if (tarefa == null || id != tarefa.Id)
             {
-                return BadRequest();
+                return BadRequest("Tarefa is null or ID mismatch");
             }
 
-            await _tarefaService.UpdateTarefaAsync(tarefa);
-            return NoContent();
+            try
+            {
+                await _tarefaService.UpdateTarefaAsync(tarefa);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTarefa(int id)
         {
-            await _tarefaService.DeleteTarefaAsync(id);
-            return NoContent();
+            try
+            {
+                await _tarefaService.DeleteTarefaAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }
