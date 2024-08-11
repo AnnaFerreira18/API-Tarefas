@@ -1,5 +1,6 @@
 ﻿using Application.Interface;
 using Domain.Entities;
+using Domain.Model;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -64,6 +65,13 @@ namespace API.Controllers
                     return BadRequest("Password is required");
                 }
 
+                // Verificar se o nome de usuário já existe
+                var existingUser = await _userService.GetUserByUsernameAsync(user.Username);
+                if (existingUser != null)
+                {
+                    return Conflict("Username already exists");
+                }
+
                 await _userService.RegisterUserAsync(user, password);
                 return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
             }
@@ -72,6 +80,25 @@ namespace API.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<User>> Login([FromBody] LoginRequest loginRequest)
+        {
+            if (loginRequest == null)
+            {
+                return BadRequest("Invalid client request");
+            }
+
+            var user = await _userService.AuthenticateUserAsync(loginRequest.Username, loginRequest.Password);
+            if (user == null)
+            {
+                return Unauthorized(); // Retorna 401 se as credenciais estiverem incorretas
+            }
+
+            return Ok(user); // Retorna o usuário autenticado
+        }
+
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, [FromBody] User user)

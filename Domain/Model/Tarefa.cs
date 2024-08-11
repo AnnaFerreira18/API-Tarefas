@@ -14,7 +14,6 @@ namespace Domain.Entities
         public int Id { get; set; }
 
         [Required]
-        [StringLength(100)] // Exemplo de limite de tamanho para o título
         public string Titulo { get; set; }
         public string Descricao { get; set; }
 

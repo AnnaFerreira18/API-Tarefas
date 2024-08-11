@@ -26,8 +26,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
 
@@ -39,8 +38,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw;
             }
         }
 
@@ -52,8 +50,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
 
@@ -66,8 +63,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
 
@@ -78,7 +74,6 @@ namespace Infrastructure.Repositories
                 var existingUser = await _context.Users.FindAsync(user.Id);
                 if (existingUser == null)
                 {
-                    // Optionally handle the case where the entity is not found
                     throw new InvalidOperationException("User not found");
                 }
 
@@ -87,8 +82,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
 
@@ -104,13 +98,12 @@ namespace Infrastructure.Repositories
                 }
                 else
                 {
-                    // Optionally handle the case where the entity is not found
+
                 }
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
     }

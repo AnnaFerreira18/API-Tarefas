@@ -9,6 +9,7 @@ namespace Application.Interface
     {
         Task<User> GetUserByIdAsync(int id);
         Task<User> GetUserByUsernameAsync(string username);
+        Task<User> AuthenticateUserAsync(string username, string password);
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task RegisterUserAsync(User user, string password);
         Task UpdateUserAsync(User user);

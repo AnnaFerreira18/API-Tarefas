@@ -1,6 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -26,8 +27,47 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
+            }
+        }
+
+        public async Task<User> AuthenticateUserAsync(string username, string password)
+        {
+            try
+            {
+                var user = await _userRepository.GetUserByUsernameAsync(username);
+                if (user == null || !VerifyPassword(password, user.Senha))
+                {
+                    return null; // Usuário não encontrado ou senha incorreta
+                }
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+
+        private bool VerifyPassword(string providedPassword, string storedHash)
+        {
+            var hashBytes = Convert.FromBase64String(storedHash);
+            var salt = new byte[16];
+            var storedHashBytes = new byte[20];
+            Array.Copy(hashBytes, 0, salt, 0, 16);
+            Array.Copy(hashBytes, 16, storedHashBytes, 0, 20);
+
+            using (var pbkdf2 = new Rfc2898DeriveBytes(providedPassword, salt, 10000, HashAlgorithmName.SHA256))
+            {
+                var hash = pbkdf2.GetBytes(20);
+                for (int i = 0; i < 20; i++)
+                {
+                    if (hash[i] != storedHashBytes[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
         }
 
@@ -39,8 +79,7 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw;
             }
         }
 
@@ -52,8 +91,7 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
 
@@ -69,8 +107,7 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
 
@@ -84,8 +121,7 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw;
             }
         }
 
@@ -97,8 +133,7 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
 

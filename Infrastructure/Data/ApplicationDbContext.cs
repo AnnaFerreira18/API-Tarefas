@@ -25,7 +25,7 @@ namespace Infrastructure.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Titulo).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.Descricao).HasMaxLength(1000); // Ajuste o tamanho conforme necessário
+                entity.Property(e => e.Descricao).HasMaxLength(1000); 
                 entity.Property(e => e.Data).IsRequired();
                 entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
                 entity.HasOne(d => d.User)

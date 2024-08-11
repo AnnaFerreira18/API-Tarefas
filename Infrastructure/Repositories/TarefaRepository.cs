@@ -21,7 +21,7 @@ namespace Infrastructure.Repositories
         public async Task<Tarefa> GetTarefaByIdAsync(int id)
         {
             return await _context.Tarefas
-                                 .Include(t => t.User) // Adiciona o carregamento ansioso para User
+                                 .Include(t => t.User) 
                                  .FirstOrDefaultAsync(t => t.Id == id);
         }
 
@@ -46,8 +46,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw;
             }
         }
 
@@ -58,7 +57,6 @@ namespace Infrastructure.Repositories
                 var existingTarefa = await _context.Tarefas.FindAsync(tarefa.Id);
                 if (existingTarefa == null)
                 {
-                    // Optionally handle the case where the entity is not found
                     throw new InvalidOperationException("Tarefa not found");
                 }
 
@@ -67,8 +65,7 @@ namespace Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw;
             }
         }
 
@@ -84,13 +81,11 @@ namespace Infrastructure.Repositories
                 }
                 else
                 {
-                    // Optionally handle the case where the entity is not found
                 }
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw; // Re-throw or handle as needed
+                throw; 
             }
         }
     }
