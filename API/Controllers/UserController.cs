@@ -1,14 +1,11 @@
 ﻿using Application.Interface;
-using Application.Services;
 using Domain.Entities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Add this attribute to protect all endpoints
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -37,7 +34,6 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous] // Allow registration without authentication
         public async Task<ActionResult<User>> PostUser(User user, [FromQuery] string password)
         {
             await _userService.RegisterUserAsync(user, password);

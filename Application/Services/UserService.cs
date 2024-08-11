@@ -1,7 +1,8 @@
 ﻿using Application.Interface;
 using Domain.Entities;
 using Domain.Interfaces;
-
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Application.Services
 {
@@ -31,8 +32,8 @@ namespace Application.Services
 
         public async Task RegisterUserAsync(User user, string password)
         {
-            // Adicione lógica para criptografar a senha, se necessário
-            user.Senha = password; // Criptografar a senha antes de salvar
+            // Lógica para criptografar a senha
+            user.Senha = HashPassword(password); // Criptografar a senha antes de salvar
             await _userRepository.AddUserAsync(user);
         }
 
@@ -44,6 +45,15 @@ namespace Application.Services
         public async Task DeleteUserAsync(int id)
         {
             await _userRepository.DeleteUserAsync(id);
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(bytes);
+            }
         }
     }
 }

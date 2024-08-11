@@ -1,13 +1,11 @@
 ﻿using Application.Interface;
 using Domain.Entities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] 
     public class TarefaController : ControllerBase
     {
         private readonly ITarefaService _tarefaService;
