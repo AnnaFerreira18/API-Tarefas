@@ -51,35 +51,39 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser([FromBody] User user, [FromQuery] string password)
+        public async Task<ActionResult<User>> PostUser([FromBody] User userWithPassword)
         {
-            if (user == null)
+            if (userWithPassword == null)
             {
                 return BadRequest("User is null");
             }
 
             try
             {
+                // Separar o usuário e a senha
+                var password = userWithPassword.Senha;
+                userWithPassword.Senha = null; // Remover a senha do objeto User
+
                 if (string.IsNullOrEmpty(password))
                 {
                     return BadRequest("Password is required");
                 }
 
-                // Verificar se o nome de usuário já existe
-                var existingUser = await _userService.GetUserByUsernameAsync(user.Username);
+                var existingUser = await _userService.GetUserByUsernameAsync(userWithPassword.Username);
                 if (existingUser != null)
                 {
                     return Conflict("Username already exists");
                 }
 
-                await _userService.RegisterUserAsync(user, password);
-                return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+                await _userService.RegisterUserAsync(userWithPassword, password);
+                return CreatedAtAction(nameof(GetUser), new { id = userWithPassword.Id }, userWithPassword);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error");
             }
         }
+
 
         [HttpPost("login")]
         public async Task<ActionResult<User>> Login([FromBody] LoginRequest loginRequest)
