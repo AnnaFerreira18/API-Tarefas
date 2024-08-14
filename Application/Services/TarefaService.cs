@@ -71,26 +71,21 @@ namespace Application.Services
 
         public async Task UpdateTarefaAsync(Tarefa tarefa)
         {
-            try
+            var existingTarefa = await _tarefaRepository.GetTarefaByIdAsync(tarefa.Id);
+            if (existingTarefa == null)
             {
-                if (tarefa == null)
-                {
-                    throw new ArgumentNullException(nameof(tarefa));
-                }
-
-                var existingTarefa = await _tarefaRepository.GetTarefaByIdAsync(tarefa.Id);
-                if (existingTarefa == null)
-                {
-                    throw new InvalidOperationException("Tarefa not found");
-                }
-
-                await _tarefaRepository.UpdateTarefaAsync(tarefa);
+                throw new KeyNotFoundException("Tarefa não encontrada");
             }
-            catch (Exception ex)
-            {
-                throw; 
-            }
+
+            // Atualizar propriedades
+            existingTarefa.Titulo = tarefa.Titulo;
+            existingTarefa.Descricao = tarefa.Descricao;
+            existingTarefa.Data = tarefa.Data;
+            existingTarefa.Status = tarefa.Status;
+
+            await _tarefaRepository.UpdateTarefaAsync(existingTarefa);
         }
+
 
         public async Task DeleteTarefaAsync(int id)
         {

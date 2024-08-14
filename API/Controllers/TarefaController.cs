@@ -90,6 +90,11 @@ namespace API.Controllers
                 return BadRequest("Tarefa is null or ID mismatch");
             }
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 await _tarefaService.UpdateTarefaAsync(tarefa);
@@ -97,9 +102,12 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
+                // Log the exception message for debugging
+                Console.WriteLine(ex.Message);
                 return StatusCode(500, "Internal server error");
             }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTarefa(int id)
